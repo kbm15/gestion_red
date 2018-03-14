@@ -21,8 +21,6 @@ ip_addr = '155.210.157.202'
 community = 'private'
 port = 161
 
-snmp_engine = snmp_requests(version, community, ip_addr, port)
-
 
 # Genero una entrada en localSnmp
 snmp_engine = snmp_requests(version, community, ip_addr, port)
@@ -35,7 +33,8 @@ snmp_engine = snmp_requests(version, community, ip_addr, port)
 
 
 # Grupo alarm
-
+varBindsAlarm = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.5.0'),OctetString('potato'))]
+snmp_engine.snmpset(varBindsAlarm)
 
 
 
