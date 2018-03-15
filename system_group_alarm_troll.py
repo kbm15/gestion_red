@@ -11,50 +11,52 @@ from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 
-# Habilitar https://myaccount.google.com/lesssecureapps
+# Codigo walk para ver status creados
+version = 'v1'
+community = 'public'
+ip_addr = '155.210.157.203'
+port = 161
+
+
+def snmpwalk(varbinds):
+
+    response = snmp_engine.snmpgetnext(varbinds)
+    maskVar = tuple(varbinds[0][0])
+    while maskVar[len(maskVar)-1] >= tuple(response.varBinds[0][0])[len(maskVar)-1]:
+        print([maskVar[len(maskVar)-1], tuple(response.varBinds[0][0])[len(maskVar)-1]])
+        print(response.varBinds[0])
+        response = snmp_engine.snmpgetnext(response.varBinds)
+
+snmp_engine = snmp_requests(version, community, ip_addr, port)
+
+varBinds1 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.12'))]
+snmpwalk(varBinds1)
 
 
 # Configuracion sonda
 
 version = 'v1'
-ip_addr = '155.210.157.202'
+ip_addr = '155.210.157.203'
 community = 'private'
 port = 161
-snmp_engine = snmp_requests(version, community, ip_addr, port)
+
 
 # Genero una entrada en localSnmp
-varBindsFree = [ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.3.0'))]
-response = snmp_engine.snmpget(varBindsFree)
-print(response.varBinds[0])
+snmp_engine = snmp_requests(version, community, ip_addr, port)
 
 
 
 # Grupo event
-varBindsEvent = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.7.1337'),Integer(3))
-varBindsDescription = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.2.1337'),OctetString('Alarma trol'))
-varBindsCommunity = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.4.1337'),OctetString('Comunidad del anillo'))
-varBindsType = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.3.1337'),Integer(4))
-varBinds = [varBindsEvent, varBindsDescription, varBindsType]
-response = snmp_engine.snmpset(varBinds)
-print(response.errorStatus)
+
+
+
 
 # Grupo alarm
-varBindsAlarm = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.12.1337'),Integer(3))
-varBindsInterval = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.2.1337'),Integer(5))
-varBindsType = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.3.1337'),ObjectIdentifier('1.3.6.1.2.1.5.1.0'))
-varBindsRise = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.7.1337'),Integer(20))
-varBindsEvent = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.9.1337'),Integer(1337))
-varBindsOwner = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.11.1337'),OctetString('github.com/kbm15/'))
-varBinds = [varBindsAlarm, varBindsInterval, varBindsType, varBindsRise, varBindsEvent, varBindsOwner]
-response = snmp_engine.snmpset(varBinds)
-print(response.errorStatus)
+varBindsAlarm = [ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.12.112'),Integer(4))]
+snmp_engine.snmpset(varBindsAlarm)
 
-# Valid
-varBindsEvent = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.7.1337'),Integer(1))
-varBindsAlarm = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.12.1337'),Integer(1))
-varBinds = [varBindsAlarm, varBindsEvent]
-response = snmp_engine.snmpset(varBinds)
-print(response.errorStatus)
+
+
 # Esta funcion es la que envia el mensaje
 # def send_msg(body):
 #
