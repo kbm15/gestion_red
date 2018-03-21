@@ -26,6 +26,11 @@ snmp_engine = snmp_requests(version, community, ip_addr, port)
 varBindsFree = [ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.3.0'))]
 response = snmp_engine.snmpget(varBindsFree)
 print(response.varBinds[0])
+varBindsTrap=ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.2.1.7.5'),Integer(4))
+varBindsDest=ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.2.1.2.5'),OctetString('155.210.157.126'))
+varBindsDest=ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.2.1.4.5'),OctetString('public'))
+varBinds = [varBindsTrap, varBindsDest]
+response = snmp_engine.snmpset(varBinds)
 
 
 
@@ -52,7 +57,8 @@ print(response.errorStatus)
 # Valid
 varBindsEvent = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.9.1.1.7.1337'),Integer(1))
 varBindsAlarm = ObjectType(ObjectIdentity('1.3.6.1.2.1.16.3.1.1.12.1337'),Integer(1))
-varBinds = [varBindsAlarm, varBindsEvent]
+varBindsTrap = ObjectType(ObjectIdentity('1.3.6.1.4.1.43.10.10.2.1.7.1'),Integer(1))
+varBinds = [varBindsAlarm, varBindsEvent, varBindsTrap]
 response = snmp_engine.snmpset(varBinds)
 print(response.errorStatus)
 # Esta funcion es la que envia el mensaje
@@ -84,62 +90,62 @@ print(response.errorStatus)
 #
 #
 #
-# # noinspection PyUnusedLocal
-# def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
-#     while wholeMsg:
-#         msgVer = int(api.decodeMessageVersion(wholeMsg))
-#         if msgVer in api.protoModules:
-#             pMod = api.protoModules[msgVer]
-#         else:
-#             print('Unsupported SNMP version %s' % msgVer)
-#             return
-#         reqMsg, wholeMsg = decoder.decode(
-#             wholeMsg, asn1Spec=pMod.Message(),
-#         )
-#         print('Notification message from %s:%s: ' % (
-#             transportDomain, transportAddress
-#         )
-#               )
-#         reqPDU = pMod.apiMessage.getPDU(reqMsg)
-#         text = ''
-#         if reqPDU.isSameTypeWith(pMod.TrapPDU()):
-#             if msgVer == api.protoVersion1:
-#                 text = text + 'Enterprise: ' + pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint() + '\n'
-#                 # Incluir el resto de campos del trap que se consideren oportunos
-#
-#                 varBinds = pMod.apiTrapPDU.getVarBinds(reqPDU)
-#             else:
-#                 varBinds = pMod.apiPDU.getVarBinds(reqPDU)
-#
-#             # Incluir el contenido de las varBinds en el correo electronico
-#
-#
-#
-#
-#
-#     return wholeMsg
-#
-#
-# transportDispatcher = AsyncoreDispatcher()
-#
-# transportDispatcher.registerRecvCbFun(cbFun)
-#
-# # UDP/IPv4
-# transportDispatcher.registerTransport(
-#     udp.domainName, udp.UdpSocketTransport().openServerMode(('0.0.0.0', 162))
-# )
-#
-# # UDP/IPv6
-# transportDispatcher.registerTransport(
-#     udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 162))
-# )
-#
-#
-# transportDispatcher.jobStarted(1)
-#
-# try:
-#     # Dispatcher will never finish as job#1 never reaches zero
-#     transportDispatcher.runDispatcher()
-# except:
-#     transportDispatcher.closeDispatcher()
-#     raise
+# noinspection PyUnusedLocal
+def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
+    while wholeMsg:
+        msgVer = int(api.decodeMessageVersion(wholeMsg))
+        if msgVer in api.protoModules:
+            pMod = api.protoModules[msgVer]
+        else:
+            print('Unsupported SNMP version %s' % msgVer)
+            return
+        reqMsg, wholeMsg = decoder.decode(
+            wholeMsg, asn1Spec=pMod.Message(),
+        )
+        print('Notification message from %s:%s: ' % (
+            transportDomain, transportAddress
+        )
+              )
+        reqPDU = pMod.apiMessage.getPDU(reqMsg)
+        text = ''
+        if reqPDU.isSameTypeWith(pMod.TrapPDU()):
+            if msgVer == api.protoVersion1:
+                text = text + 'Enterprise: ' + pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint() + '\n'
+                # Incluir el resto de campos del trap que se consideren oportunos
+
+                varBinds = pMod.apiTrapPDU.getVarBinds(reqPDU)
+            else:
+                varBinds = pMod.apiPDU.getVarBinds(reqPDU)
+
+            # Incluir el contenido de las varBinds en el correo electronico
+
+
+
+
+
+    return wholeMsg
+
+
+transportDispatcher = AsyncoreDispatcher()
+
+transportDispatcher.registerRecvCbFun(cbFun)
+
+# UDP/IPv4
+transportDispatcher.registerTransport(
+    udp.domainName, udp.UdpSocketTransport().openServerMode(('0.0.0.0', 162))
+)
+
+# UDP/IPv6
+transportDispatcher.registerTransport(
+    udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 162))
+)
+
+
+transportDispatcher.jobStarted(1)
+
+try:
+    # Dispatcher will never finish as job#1 never reaches zero
+    transportDispatcher.runDispatcher()
+except:
+    transportDispatcher.closeDispatcher()
+    raise
