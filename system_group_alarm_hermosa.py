@@ -62,34 +62,34 @@ varBinds = [varBindsAlarm, varBindsEvent, varBindsTrap]
 response = snmp_engine.snmpset(varBinds)
 print(response.errorStatus)
 # Esta funcion es la que envia el mensaje
-# def send_msg(body):
-#
-#     fromaddr = ""
-#     toaddr = ""
-#     password = ""
-#
-#     msg = multipart.MIMEMultipart()
-#     msg['From'] = fromaddr
-#     msg['To'] = toaddr
-#     msg['Subject'] = "Alarm"
-#
-#     #body = "Python test mail"
-#     msg.attach(text.MIMEText(body, 'plain'))
-#
-#
-#     server = smtplib.SMTP('smtp.gmail.com', 587)
-#     server.ehlo()
-#     server.starttls()
-#     server.ehlo()
-#     server.login(fromaddr, password)
-#     cuerpo = msg.as_string()
-#     server.sendmail(fromaddr, toaddr, cuerpo)
-#
-#
-#
-#
-#
-#
+def send_msg(body):
+
+    fromaddr = "woodencnc@gmail.com"
+    toaddr = "keyblademaster15@gmail.com"
+    password = "maduixa69"
+
+    msg = multipart.MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Alarm"
+
+    #body = "Python test mail"
+    msg.attach(text.MIMEText(body, 'plain'))
+
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login(fromaddr, password)
+    cuerpo = msg.as_string()
+    server.sendmail(fromaddr, toaddr, cuerpo)
+
+
+
+
+
+
 # noinspection PyUnusedLocal
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
@@ -105,7 +105,11 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         print('Notification message from %s:%s: ' % (
             transportDomain, transportAddress
         )
+
               )
+        send_msg('Notification message from %s:%s: ' % (
+            transportDomain, transportAddress
+        ))
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         text = ''
         if reqPDU.isSameTypeWith(pMod.TrapPDU()):
