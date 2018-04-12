@@ -1,6 +1,6 @@
 from snmp_library import *
 from pysnmp.hlapi.asyncore import *
-from scapy.all import sr,srp,Ether,ARP,IP,TCP,conf
+from scapy.all import *
 
 
 

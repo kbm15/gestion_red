@@ -7,7 +7,7 @@ import time
 # Variables in my program
 version = 'v1'
 community = 'public'
-ip_addr = '155.210.157.4'
+ip_addr = '155.210.157.202'
 port = 161
 
 # SNMP engine inicialization
@@ -93,6 +93,6 @@ else:
     print response.varBinds[0]
     print tools().var_type(response.varBinds[0])
 
-# ending time counter
+# Ending time counter
 elapsed = time.time() - t
 print 'Total execution time: ' + str(elapsed) + ' seconds'

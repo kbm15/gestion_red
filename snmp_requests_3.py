@@ -7,7 +7,7 @@ import time
 # Variables in my program
 version = 'v1'
 community = 'public'
-ip_addr = '192.168.3.4'
+ip_addr = '155.210.157.202'
 port = 161
 
 # SNMP engine inicialization
@@ -35,24 +35,7 @@ t = time.time()
 response = snmp_engine.snmpget(varBinds)
 status = response.errorStatus
 index = response.errorIndex
-print('Ha habido un error ' + str(status) + '  en la peticion ' + str(index))
-#Bucle maravilloso para sacar todos los varbind por pantalla
-# for x in range(0,6):
-#     print response.varBinds[x]
-#     print tools().var_type(response.varBinds[x][1])
-
-    # print response.varBinds[1]
-    # print tools().var_type(response.varBinds[1][0])
-    # print response.varBinds[2]
-    # print tools().var_type(response.varBinds[2][0])
-    # print response.varBinds[3]
-    # print tools().var_type(response.varBinds[3][0])
-    # print response.varBinds[4]
-    # print tools().var_type(response.varBinds[4][0])
-    # print response.varBinds[5]
-    # print tools().var_type(response.varBinds[5][0])
-    # print response.varBinds[6]
-    # print tools().var_type(response.varBinds[0][0])
+print('Ha habido un error ' + str(status) + ' en la peticion ' + str(index))
 
 # ending time counter
 elapsed = time.time() - t

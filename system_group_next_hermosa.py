@@ -7,7 +7,7 @@ import time
 # Variables in my program
 version = 'v1'
 community = 'public'
-ip_addr = '192.168.3.4'
+ip_addr = '155.210.157.202'
 port = 161
 
 
@@ -26,6 +26,7 @@ varBinds4 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'))]
 varBinds5 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.4.0'))]
 varBinds6 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.5.0'))]
 varBinds7 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.6.0'))]
+varBinds8 = [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.7.0'))]
 
 print 'Pedimos con getnext'
 t = time.time()
@@ -93,15 +94,6 @@ t = time.time()
 
 print 'Ahora con get'
 # Send request
-response = snmp_engine.snmpget(varBinds1)
-if response.errorIndication:
-    print 'errorIndication'
-elif response.errorStatus:
-    print 'errorStatus'
-else:
-    print response.varBinds[0]
-    print tools().var_type(response.varBinds[0])
-
 response = snmp_engine.snmpget(varBinds2)
 if response.errorIndication:
     print 'errorIndication'
@@ -148,6 +140,15 @@ else:
     print tools().var_type(response.varBinds[0])
 
 response = snmp_engine.snmpget(varBinds7)
+if response.errorIndication:
+    print 'errorIndication'
+elif response.errorStatus:
+    print 'errorStatus'
+else:
+    print response.varBinds[0]
+    print tools().var_type(response.varBinds[0])
+
+response = snmp_engine.snmpget(varBinds8)
 
 if response.errorIndication:
     print 'errorIndication'

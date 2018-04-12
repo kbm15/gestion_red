@@ -6,7 +6,7 @@ from pysnmp.hlapi.asyncore import *
 # Variables in my program
 version = 'v1'
 community = 'public'
-ip_addr = '155.210.157.27'
+ip_addr = '155.210.157.202'
 port = 161
 
 

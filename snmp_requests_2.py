@@ -7,7 +7,7 @@ import time
 # Variables in my program
 version = 'v1'
 community = 'public'
-ip_addr = '192.168.3.4'
+ip_addr = '155.210.157.202'
 port = 161
 
 # SNMP engine inicialization
@@ -25,7 +25,7 @@ varBinds4 = ObjectType(ObjectIdentity('1.3.6.1.2.1.1.4.0'))
 varBinds5 = ObjectType(ObjectIdentity('1.3.6.1.2.1.1.5.0'))
 varBinds6 = ObjectType(ObjectIdentity('1.3.6.1.2.1.1.6.0'))
 varBinds7 = ObjectType(ObjectIdentity('1.3.6.1.2.1.1.7.0'))
-#Conseguimos ahorrar tiempo equivalente al numero de peticiones si las pedimos todas de golpe
+# Conseguimos ahorrar tiempo equivalente al numero de peticiones si las pedimos todas de golpe
 varBinds = [varBinds1, varBinds2, varBinds3, varBinds4, varBinds5, varBinds6, varBinds7]
 
 t = time.time()
@@ -56,6 +56,6 @@ else:
     # print response.varBinds[6]
     # print tools().var_type(response.varBinds[0][0])
 
-# ending time counter
+# Ending time counter
 elapsed = time.time() - t
 print 'Total execution time: ' + str(elapsed) + ' seconds'
