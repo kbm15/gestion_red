@@ -1,0 +1,156 @@
+#!/bin/expect
+
+# netconf_basic.exp
+# Untitled
+#
+# Created by xxx on 17/05/13.
+# Copyright 2013 Alesanco Ltd. All rights reserved.
+
+# La utilización de las comillas dentro de otras comillas ha de ser escapada
+# <xmlns="urn:ietf:params:xml:ns:netconf:base:1.0"> se ha de utilizar dentro de un set como
+#set xxx "<xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">"
+
+set timeout 7
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set hostname [lindex $argv 2]
+
+# colors
+set normal "\033\[0;30m"
+set red "\033\[1;31m"
+set red_n "\033\[0;31m"
+set green "\033\[1;32m"
+set yelow "\033\[1;33m"
+set blue "\033\[1;34m"
+set magenta "\033\[1;35m"
+set cyan "\033\[1;36m"
+set white "\033\[1;37m"
+
+# Mandamos un hello anunciando que vamos a trabajar en  base 1.0
+set hello "<?xml version=\"1.0\" encoding=\"UTF-8\"?> 
+<hello xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"> 
+<capabilities> 
+<capability> urn:ietf:params:netconf:base:1.0 </capability> 
+</capabilities> 
+</hello>]]>]]>"
+
+# Mandamos el comando de cerrar sesion en  base 1.0		
+set close_session "<rpc message-id=\"101\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"> 
+<close-session/> 
+</rpc>]]>]]>"
+
+# Hemos tenido que buscar como funciona el modulo de yuma de interfaces en el internet
+# Luego hemos creado el filtro en el que busca el subarbol con lo especificado en
+# la pagina oficial de internet
+set get_p2p1 "<rpc message-id=\"111\"
+xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">
+<get>
+<filter type=\"subtree\">
+<interfaces xmlns=\"http://netconfcentral.org/ns/yuma-interfaces\">
+<interface>
+<name>p2p1</name>
+</interface>
+</interfaces>
+</filter>
+</get>
+</rpc>]]>]]>"
+
+set edit_arp "
+pon aquí la operación para editar la tabla ARP"
+
+# añade tantas variables como operaciones necesites
+			
+
+log_user 0
+
+if {[llength $argv] == 0} {
+  send_user "Usage: scriptname username \'password\' hostname\n"
+  exit 1
+}
+
+send_user "${red}\n#####\n# NETCONF Server: $hostname\n#####\n${normal}"
+
+#################################################################################################
+# MODULO HELLO (ABRIR SESION)
+#################################################################################################
+#spawn ssh -q -o StrictHostKeyChecking=no $username@$hostname
+spawn ssh -s -p830 $username@$hostname netconf
+match_max 10000
+
+expect {
+  timeout { send_user "\nFailed to get password prompt\n"; exit 1 }
+  eof { send_user "\nSSH failure for $hostname\n"; exit 1 }
+	send_user "Dentro de expect"
+   
+   -re ".*Are.*.*yes.*no.*" {
+	send_user "REGEX match"
+	send "yes\r"
+	
+	exp_continue
+	}
+	-re ".assword:" {
+		# Sending the password
+		send "$password\n"
+		send_user "${blue}\nSending password\n" 
+	}
+	
+}
+
+expect {
+  timeout { send_user "\nLogin failed. Password incorrect.\n"; exit 1}
+  "/hello>]]>]]>"
+}
+send_user "${green}\nPassword is correct and connected to NETCONF server\n" 
+send_user "${red}\n###########################################\n"
+send_user "\nNETCONF server says hello\n" 
+send_user "\n###########################################\n"
+send_user "${blue}$expect_out(buffer)\n"
+send_user "${red}\n###########################################\n"
+
+
+# Sending hello message
+send_user "\nSENDING HELLO MESSAGE TO THE SERVER\n" 
+send_user "\n###########################################\n"
+send "$hello\n"
+#send_user "$expect_out(buffer)\n" 
+
+expect "</hello>]]>]]>"
+send_user "${blue}$expect_out(buffer)\n" 
+send_user "${red}\n###########################################\n"
+
+
+#################################################################################################
+# MODULO INTERFACES
+#################################################################################################
+if {1==1} {
+# Mando el get para los interfaces
+send_user "\nSENDING GET (IF) MESSAGE TO THE SERVER\n" 
+send_user "\n###########################################\n"
+send "$get_p2p1\n"
+
+expect {
+  timeout { send_user "\nTimeout.\n"; exit 1}
+  "/rpc-reply>]]>]]>"
+}
+
+send_user "${blue}$expect_out(buffer)\n" 
+send_user "${red}\n###########################################\n"
+}
+
+#################################################################################################
+# CIERRE SESION
+#################################################################################################
+
+send_user "\nCerramos sesión NETCONF\n"
+send_user "\n###########################################\n"
+
+send "$close_session\n"
+#Este último expect no lo veo necesario porque al mandar el close se cierra la sesión
+expect {
+  timeout { send_user "\nTimeout.\n"; exit 1}
+  "/rpc-reply>]]>]]>"
+}
+
+send_user "${blue}$expect_out(buffer)\n"
+
+send_user "\n###############################################\n${normal}"
